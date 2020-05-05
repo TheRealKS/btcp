@@ -1,5 +1,4 @@
 # Factory for bTCP segments
-
 from btcp.segment_type import *
 from btcp.constants import HEADER_SIZE, PAYLOAD_SIZE, SEGMENT_SIZE
 

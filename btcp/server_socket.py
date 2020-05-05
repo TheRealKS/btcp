@@ -22,6 +22,8 @@ class BTCPServerSocket(BTCPSocket):
 
         if self.status < 3:
             self.accept(s)
+        else:
+            self.recv(segment)
 
     # Wait for the client to initiate a three-way handshake
     def accept(self, client_segment):
@@ -46,10 +48,6 @@ class BTCPServerSocket(BTCPSocket):
             self.status = 2
 
         self._rwindow = client_segment.window
-
-    # Send any incoming data to the application layer
-    def recv(self):
-        pass
 
     # Clean up any state
     def close(self):

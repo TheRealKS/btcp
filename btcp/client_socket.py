@@ -31,7 +31,7 @@ class BTCPClientSocket(BTCPSocket):
             pass
         elif len(s.flags) == 0:
             # Just a message
-            pass
+            self.recv(segment)
         else:
             raise ValueError("Invalid flag setting in message")
 
@@ -68,13 +68,6 @@ class BTCPClientSocket(BTCPSocket):
 
         self._lossy_layer.send_segment(s.make())
         self.status = 3
-
-    # Send data originating from the application in a reliable way to the server
-    def send(self, data):
-        segments = self.create_data_segments(data)
-
-        if self._rwindow > 0:
-            pass
 
     # Perform a handshake to terminate a connection
     def disconnect(self):
