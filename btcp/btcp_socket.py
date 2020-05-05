@@ -2,6 +2,7 @@ class BTCPSocket:
 
     def __init__(self, window, timeout):
         self._window = window
+        self._rwindow = 0
         self._timeout = timeout
         self.status = 0 #0=nothing, 1 = client SYN sent, 2 = Server responded, 3 = Fully connected
 

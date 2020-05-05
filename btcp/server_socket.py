@@ -38,6 +38,8 @@ class BTCPServerSocket(BTCPSocket):
             self._lossy_layer.send_segment(newsegment.make())
             self.status = 2
 
+        self._rwindow = client_segment.window
+
     # Send any incoming data to the application layer
     def recv(self):
         pass

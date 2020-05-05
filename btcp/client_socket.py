@@ -19,7 +19,7 @@ class BTCPClientSocket(BTCPSocket):
         if self.status == 1:
             # Step 2 of handshake
             self.finish_connect(s)
-            self._window = s.window
+            self._rwindow = s.window
             return
 
         if SegmentType.ACK in s.flags & SegmentType.FIN in s.flags:
@@ -42,6 +42,7 @@ class BTCPClientSocket(BTCPSocket):
         s = bTCPSegment()
         s = s.Factory() \
             .setFlag(SegmentType.SYN) \
+            .setWindow(self._window) \
             .make()
 
         self._lossy_layer.send_segment(s)
@@ -56,6 +57,7 @@ class BTCPClientSocket(BTCPSocket):
             .setFlag(SegmentType.ACK) \
             .setSequenceNumber(server_segment.seqnumber + 1) \
             .setAcknowledgementNumber(server_segment.acknumber + 1) \
+            .setWindow(self._window) \
             .make()
 
         self._lossy_layer.send_segment(s)
@@ -63,11 +65,9 @@ class BTCPClientSocket(BTCPSocket):
 
     # Send data originating from the application in a reliable way to the server
     def send(self, data):
-        segments = create_data_segments(data)
+        segments = self.create_data_segments(data)
 
-        if self._window > 0 {
-
-        }
+        if self._window > 0:
 
     # Perform a handshake to terminate a connection
     def disconnect(self):
