@@ -33,6 +33,7 @@ class BTCPServerSocket(BTCPSocket):
             newsegment.setFlag(SegmentType.ACK)
             newsegment.setSequenceNumber(client_segment.seqnumber + 1)
             newsegment.setAcknowledgementNumber(client_segment.acknumber + 1)
+            newsegment.setWindow(self._window)
 
             self._lossy_layer.send_segment(newsegment.make())
             self.status = 2

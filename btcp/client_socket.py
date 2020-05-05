@@ -18,6 +18,7 @@ class BTCPClientSocket(BTCPSocket):
 
         if self.status == 1:
             self.finish_connect(s)
+            self._window = s.window
 
     # Perform a three-way handshake to establish a connection
     def connect(self):
