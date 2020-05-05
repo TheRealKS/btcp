@@ -17,8 +17,22 @@ class BTCPClientSocket(BTCPSocket):
         s.decode(segment[0])
 
         if self.status == 1:
+            # Step 2 of handshake
             self.finish_connect(s)
             self._window = s.window
+            return
+
+        if SegmentType.ACK in s.flags & SegmentType.FIN in s.flags:
+            # Disconnected
+            pass
+        elif SegmentType.ACK in s.flags:
+            # Acknowledgment
+            pass
+        elif len(s.flags) == 0:
+            # Just a message
+            pass
+        else:
+            raise ValueError("Invalid flag setting in message")
 
     # Perform a three-way handshake to establish a connection
     def connect(self):
@@ -49,7 +63,11 @@ class BTCPClientSocket(BTCPSocket):
 
     # Send data originating from the application in a reliable way to the server
     def send(self, data):
-        pass
+        segments = create_data_segments(data)
+
+        if self._window > 0 {
+
+        }
 
     # Perform a handshake to terminate a connection
     def disconnect(self):

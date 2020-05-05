@@ -4,6 +4,10 @@ class BTCPSocket:
         self._window = window
         self._timeout = timeout
         self.status = 0 #0=nothing, 1 = client SYN sent, 2 = Server responded, 3 = Fully connected
+
+    def create_data_segments(self, data):
+        #To create packets
+        pass
    
     # Return the Internet checksum of data
     @staticmethod
