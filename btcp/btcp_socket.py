@@ -26,7 +26,8 @@ class BTCPSocket:
     
     # Send any incoming data to the application layer
     def recv(self, segment):
-        if (in_cksum(segment) and segment.seqnumber() - self._acknum == 1):
+        if (in_cksum(segment) and segment.seqnumber() - self._acknum == 1 and self.window > 0):
+            self.rbuffer.append(segment.data)
             self._acknum += 1
             self._window -= 1
             newsegment = bTCPSegment().Factory()
@@ -35,6 +36,14 @@ class BTCPSocket:
             newsegment.setAcknowledgementNumber(self._acknum)
             newsegment.setWindow(self._window)
    
+    def read(self):
+        return self.rbuffer.pop(0)
+
+    def read_all(self):
+        buf = self.rbuffer
+        self.rbuffer = []
+        return buf
+
     # Return the Internet checksum of data
     @staticmethod
     def in_cksum(data):
