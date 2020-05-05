@@ -139,7 +139,7 @@ class bTCPSegment:
         checksum = header[CHECKSUM:CHECKSUM+CHECKSUM_SIZE]
         self.checksum = int.from_bytes(checksum, byteorder)
 
-        self.data = rawSegment[10:(10 + datlen)].decode()
+        self.data = rawSegment[10:(10 + self.datalength)].decode()
 
     def decodeFlags(self, flags):
         number = int.from_bytes(flags, byteorder)
