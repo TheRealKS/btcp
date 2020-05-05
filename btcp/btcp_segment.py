@@ -22,6 +22,7 @@ CHECKSUM_SIZE = 2
 class bTCPSegment:
     def __init__(self):
         # Empty fields
+        self.data = bytearray(0)
         self.flags = []
         self.flagint = 0
         self.seqnumber = 0
@@ -136,6 +137,8 @@ class bTCPSegment:
 
         checksum = header[CHECKSUM:CHECKSUM+CHECKSUM_SIZE]
         self.checksum = int.from_bytes(checksum, byteorder)
+
+        self.data = rawSegment[10:(10 + datlen)].decode()
 
     def decodeFlags(self, flags):
         number = int.from_bytes(flags, byteorder)
