@@ -2,10 +2,6 @@
 from btcp.segment_type import *
 from btcp.constants import HEADER_SIZE, PAYLOAD_SIZE, SEGMENT_SIZE
 
-from os import urandom
-
-from btcp.btcp_segment_printer import printbTCP
-
 from sys import byteorder
 
 # Some indices
@@ -28,7 +24,7 @@ class bTCPSegment:
         # Empty fields
         self.flags = []
         self.flagint = 0
-        self.seqnumber = urandom(2)
+        self.seqnumber = 0
         self.acknumber = 0
         self.window = 0
         self.checksum = 0
@@ -57,10 +53,9 @@ class bTCPSegment:
         if not self.factory:
             pass
 
-        # Setting sequence number is only allowed if SYN flag not set
-        if SegmentType.SYN not in self.flags:
-            self.header[SEQUENCE_NUM:SEQUENCE_NUM + SEQUENCE_SIZE] = int.to_bytes(number, SEQUENCE_SIZE, byteorder)
+        self.header[SEQUENCE_NUM:SEQUENCE_NUM + SEQUENCE_SIZE] = int.to_bytes(number, SEQUENCE_SIZE, byteorder)
 
+        self.seqnumber = number
         return self
 
     def setAcknowledgementNumber(self, number):

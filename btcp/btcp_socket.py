@@ -7,12 +7,14 @@ class BTCPSocket:
     def __init__(self, window, timeout):
         self._window = window
         self._rwindow = 0
+        self._acknum = 0
+        self._seqnum = 0
         self._timeout = timeout
         self.rbuffer = []
         self.status = 0 #0=nothing, 1 = client SYN sent, 2 = Server responded, 3 = Fully connected
 
     def create_data_segments(self, data):
-        #To create packets
+
         pass
 
     # Send data originating from the application in a reliable way to the server
