@@ -5,6 +5,9 @@ from btcp.constants import *
 from btcp.btcp_segment import *
 from btcp.segment_type import  *
 
+from os import urandom
+from sys import byteorder
+
 # The bTCP server socket
 # A server application makes use of the services provided by bTCP by calling accept, recv, and close
 class BTCPServerSocket(BTCPSocket):
@@ -28,14 +31,18 @@ class BTCPServerSocket(BTCPSocket):
         if SegmentType.ACK in client_segment.flags:
             self.status = 3
         else:
+            self._seqnum = int.from_bytes(urandom(2), byteorder)
+            self._acknum = client_segment.seqnumber + 1
+
             newsegment = bTCPSegment().Factory()
             newsegment.setFlag(SegmentType.SYN)
             newsegment.setFlag(SegmentType.ACK)
-            newsegment.setSequenceNumber(client_segment.seqnumber + 1)
-            newsegment.setAcknowledgementNumber(client_segment.acknumber + 1)
+            newsegment.setAcknowledgementNumber(self._acknum)
+            newsegment.setSequenceNumber(self._seqnum)
             newsegment.setWindow(self._window)
+            newsegment = newsegment.make()
 
-            self._lossy_layer.send_segment(newsegment.make())
+            self._lossy_layer.send_segment(newsegment)
             self.status = 2
 
         self._rwindow = client_segment.window
