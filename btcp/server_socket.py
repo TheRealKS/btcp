@@ -53,6 +53,7 @@ class BTCPServerSocket(BTCPSocket):
 
         self._rwindow = client_segment.window
 
+    # Reply with FINACK and close connection
     def disconnect(self):
         s = s.Factory() \
             .setFlag(SegmentType.ACK) \

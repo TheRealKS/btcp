@@ -46,6 +46,7 @@ class BTCPClientSocket(BTCPSocket):
         self._lossy_layer.send_segment(s)
         self.status += 1
 
+    # Finish the three-way handshake to establish connection
     def finish_connect(self, server_segment):
         if self.status > 1:
             raise AttributeError("Attempt to establish connection when connection is already (being) established.")
@@ -63,11 +64,12 @@ class BTCPClientSocket(BTCPSocket):
         self._lossy_layer.send_segment(s.make())
         self.status = 3
 
-    # Perform a handshake to terminate a connection
+    # Start a handshake to terminate a connection
     def disconnect(self):
         sendFin()
         s.status = 4
 
+    # Sends a FIN package
     def sendFin(self):
         s = s.Factory() \
             .setFlag(SegmentType.FIN)
