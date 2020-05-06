@@ -50,15 +50,15 @@ class BTCPClientSocket(BTCPSocket):
         self._lossy_layer.send_segment(s)
         self.status = 1
 
-        self.loop.call_later(self._timeout, self.checkTimeout)
+        self.loop.call_later(self._timeout, self.checkTimeout, self.connect)
         if first:
             self.loop.run_forever()
 
-    def checkTimeout(self):
+    def checkTimeout(self, callback):
         if self.status == 1:
             if self.tries < MAX_TRIES:
                 self.tries += 1
-                self.connect(False)
+                callback(False)
             else:
                 raise TimeoutError("Connection to server timed out after " + str(self.tries) + " tries")
         else:
@@ -84,9 +84,14 @@ class BTCPClientSocket(BTCPSocket):
         self.status = 3
 
     # Perform a handshake to terminate a connection
-    def disconnect(self):
+    def disconnect(self, first):
         sendFin()
         s.status = 4
+
+        self.loop.call_later(self._timeout, self.checkTimeout, self.disconnect)
+        if first:
+            self.loop.run_forever()
+
 
     # Sends a FIN package
     def sendFin(self):
