@@ -19,6 +19,8 @@ def main():
     while(s.isActive()):
         dataList.extend(s.recv())
 
+    print("received: " + dataList[0])
+
     # Clean up any state
     s.close()
 

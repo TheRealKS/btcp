@@ -1,3 +1,5 @@
+from threading import Timer
+
 from btcp.btcp_socket import BTCPSocket
 from btcp.lossy_layer import LossyLayer
 from btcp.constants import *
@@ -25,7 +27,6 @@ class BTCPClientSocket(BTCPSocket):
             # Step 2 of handshake
             self.finish_connect(s)
             self._rwindow = s.window
-            self.loop.stop()
             return
 
         if SegmentType.ACK in s.flags and SegmentType.FIN in s.flags:
@@ -50,10 +51,8 @@ class BTCPClientSocket(BTCPSocket):
         self._lossy_layer.send_segment(s)
         self.status = 1
 
-        return
-        self.loop.call_later(self._timeout, self.timeout, self.connect)
-        if first:
-            self.connloop.run_forever()
+        t = Timer(self._timeout, self.timeout, [self.connect])
+        t.start()
 
     def timeout(self, callback):
         if self.status == 1 or self.status == 4:
@@ -63,10 +62,6 @@ class BTCPClientSocket(BTCPSocket):
             else:
                 self.close()
                 raise TimeoutError("Connection to server timed out after " + str(self.tries) + " tries")
-        else:
-            if not self.loop.is_closed() and not self.loop.is_running():
-                self.loop.stop()
-                self.loop.close()
 
     def finish_connect(self, server_segment):
         if self.status > 1:
@@ -86,15 +81,13 @@ class BTCPClientSocket(BTCPSocket):
         self.status = 3
 
     # Perform a handshake to terminate a connection
-    def disconnect(self, first=True):
+    def disconnect(self):
         self.sendFin()
         self.tries = 1
         self.status = 4
 
-        self.loop.call_later(self._timeout, self.timeout, self.disconnect)
-        if first:
-            self.connloop.run_forever()
-
+        t = Timer(self._timeout, self.timeout, [self.disconnect])
+        t.start()
 
     # Sends a FIN package
     def sendFin(self):
