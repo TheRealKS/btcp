@@ -13,10 +13,31 @@ def main():
 
     # Create a bTCP client socket with the given window size and timeout value
     s = BTCPClientSocket(args.window, args.timeout)
-    # TODO Write your file transfer clientcode using your implementation of BTCPClientSocket's connect, send, and disconnect methods.
+    s.connect()
+    print("Connected!")
+
+    try:
+        f = open(args.input)
+        lines = f.read().encode()
+        sendFile(lines, s, 0)
+    except IOError:
+        print("File does not exist!")
+    finally:
+        f.close()
 
     # Clean up any state
-    s.close()
+    s.disconnect()
+
+
+def sendFile(filedata, socket, sent):
+    try:
+        socket.send(filedata)
+    except ValueError as e:
+        size = e.args[0]
+        slice = filedata[sent, size]
+        sendFile(slice, socket, 0)
+        if len(filedata) > 0:
+            sendFile(filedata, socket, size)
 
 
 main()

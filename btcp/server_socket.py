@@ -25,11 +25,11 @@ class BTCPServerSocket(BTCPSocket):
         if self.status < 3:
             self.accept(s)
         else:
-            if SegmentType.FIN in segment.flags:
+            if SegmentType.FIN in s.flags:
                 # Disconnected
                 self.disconnect()
             else:
-                self.process_message(segment, rsegment)
+                self.process_message(s, rsegment)
 
     # Wait for the client to initiate a three-way handshake
     def accept(self, client_segment):
@@ -66,4 +66,4 @@ class BTCPServerSocket(BTCPSocket):
         self._active = False
 
     def isActive(self):
-        return self.active
+        return self._active

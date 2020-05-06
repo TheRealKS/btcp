@@ -28,10 +28,10 @@ class BTCPClientSocket(BTCPSocket):
             self.loop.stop()
             return
 
-        if SegmentType.ACK in segment.flags & SegmentType.FIN in segment.flags:
+        if SegmentType.ACK in s.flags & SegmentType.FIN in s.flags:
             self.close()
         else:
-            self.process_message(segment, rsegment)
+            self.process_message(s, rsegment)
 
     # Perform a three-way handshake to establish a connection
     def connect(self, first=True):

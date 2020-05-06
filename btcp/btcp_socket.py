@@ -24,8 +24,9 @@ class BTCPSocket:
 
     def create_data_segments(self, data: bytearray):
         # The size of the data is too large
-        if len(data) > (MAX_SBUFFER_SIZE - len(self.sbuffer)) * PAYLOAD_SIZE:
-            raise ValueError("Size of data too large")
+        remaining = MAX_SBUFFER_SIZE - len(self.sbuffer) * PAYLOAD_SIZE
+        if len(data) > remaining:
+            raise ValueError(remaining)
 
         # While we can make segments the size of the max payload, do so
         segments = []
