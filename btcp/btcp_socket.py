@@ -99,9 +99,6 @@ class BTCPSocket:
         self.rbuffer = []
         return buf
 
-    def timeout(self):
-        sendAll()
-
     # Checks if the checksum is as it should be
     def cksumOK(self, segment):
         self.in_cksum(segment) == 0xffff

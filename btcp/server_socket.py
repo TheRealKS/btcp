@@ -55,11 +55,13 @@ class BTCPServerSocket(BTCPSocket):
 
     # Reply with FINACK and close connection
     def disconnect(self):
+        s = bTCPSegment()
         s = s.Factory() \
             .setFlag(SegmentType.ACK) \
-            .setFlag(SegmentType.FIN)
-        self.lossy_layer.send_segment(s.make())
-        close()
+            .setFlag(SegmentType.FIN) \
+            .make()
+        self._lossy_layer.send_segment(s)
+        self.close()
 
     # Clean up any state and send an ACKFIN
     def close(self):
