@@ -105,7 +105,7 @@ class BTCPSocket:
         sendAll()
 
     def cksumOK(self, segment):
-        self.in_cksum(segment) == 0xffff
+        return self.in_cksum(segment) == 0xffff
     
     # Create a data packet
     def create_data_segment(self, data: bytearray):
