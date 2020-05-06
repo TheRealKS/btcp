@@ -125,7 +125,7 @@ class BTCPSocket:
     # Return the Internet checksum of data
     @staticmethod
     def in_cksum(data):
-        da  ta = bytes(data)
+        data = bytes(data)
 
         # turn into unsigned char and then add it to the sum
         sum = 0
