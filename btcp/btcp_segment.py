@@ -120,7 +120,7 @@ class bTCPSegment:
     def Factory(self):
         # Init empty array for header
         self.data = bytearray(0)
-        self.header = bytearray(self.seqnumber) + bytearray(HEADER_SIZE - SEQUENCE_SIZE)
+        self.header = bytearray(HEADER_SIZE)
 
         self.factory = True
         return self

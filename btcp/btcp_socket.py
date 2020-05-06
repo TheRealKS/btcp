@@ -149,7 +149,12 @@ segment = segment.Factory() \
     .setChecksum(BTCPSocket.in_cksum) \
     .make()
 
-s = bTCPSegment()
-s.decode(segment)
-print(s.checksum)
+print(segment.hex())
 print(BTCPSocket.in_cksum(segment))
+
+segment = bTCPSegment()
+segment = segment.Factory() \
+    .setPayload("HALLO".encode()) \
+    .make()
+
+print(segment.hex())
