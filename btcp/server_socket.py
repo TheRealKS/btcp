@@ -63,7 +63,3 @@ class BTCPServerSocket(BTCPSocket):
             .make()
         self._lossy_layer.send_segment(s)
         self.close()
-
-    # Clean up any state and send an ACKFIN
-    def close(self):
-        self._lossy_layer.destroy()

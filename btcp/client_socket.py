@@ -103,9 +103,3 @@ class BTCPClientSocket(BTCPSocket):
             .make()
 
         self._lossy_layer.send_segment(segment)
-
-
-    # Clean up any state
-    def close(self):
-        self.loop.close()
-        self._lossy_layer.destroy()

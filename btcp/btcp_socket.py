@@ -20,6 +20,7 @@ class BTCPSocket:
         self.status = 0  # 0=nothing, 1 = client SYN sent, 2 = Server responded, 3 = Fully connected
         self._lossy_layer = None
         self.loop = asyncio.get_event_loop()
+        self.loop_started = False
 
     def create_data_segments(self, data: bytearray):
         # The size of the data is too large
@@ -51,6 +52,9 @@ class BTCPSocket:
 
         #start timeout timer
         self.loop.call_later(self._timeout, self.sendAll())
+        if not self.loop_started:
+            self.loop.run_forever()
+            self.loop_started = True
 
         #send up to _rwindow of the new packets
         for i in range(self._rwindow):
@@ -123,13 +127,13 @@ class BTCPSocket:
     # Return the Internet checksum of data
     @staticmethod
     # computes the Internet checksum
-    def in_cksum(data):
+    def in_cksum(self, data):
         #add padding if data is odd
         if(len(data)%2 != 0):
             data = data + b'\0'
 
         #turn into unsigned char and then add it to the sum
-        sum = int(0)    
+        sum = int(0)
         for i in range(int(len(data)/2)):
             sum += struct.unpack('!H', data[i*2:(i*2)+2])[0]
 
@@ -140,4 +144,9 @@ class BTCPSocket:
         #invert
         sum = 0xffff ^ sum
 
-        return sum
+        return sum 
+    
+    # Clean up any state
+    def close(self):
+        self.loop.close()
+        self._lossy_layer.destroy()
