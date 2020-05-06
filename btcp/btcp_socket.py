@@ -110,7 +110,7 @@ class BTCPSocket:
 
     # Checks if the checksum is as it should be
     def cksumOK(self, segment):
-        return self.in_cksum(segment) == 0xffff
+        return self.in_cksum(segment) == 0
     
     # Create a data packet
     def create_data_segment(self, data: bytearray):
@@ -131,30 +131,14 @@ class BTCPSocket:
 
         # turn into unsigned char and then add it to the sum
         sum = 0
-        for i in range(int(len(data) / 2), 2):
+        for i in range(0, len(data), 2):
             sum += int.from_bytes(data[i:(i + 2)], byteorder)
 
         # handle carries
-        while (sum > (216) - 1):
-            sum = int(sum % (216)) + int(sum / (2 ** 16))
+        while (sum > (2 ** 16) - 1):
+            sum = int(sum % (2 ** 16)) + int(sum / (2 ** 16))
 
         # invert
         sum = 0xffff ^ sum
 
         return sum
-
-segment = bTCPSegment()
-segment = segment.Factory() \
-    .setPayload("HALLO".encode()) \
-    .setChecksum(BTCPSocket.in_cksum) \
-    .make()
-
-print(segment.hex())
-print(BTCPSocket.in_cksum(segment))
-
-segment = bTCPSegment()
-segment = segment.Factory() \
-    .setPayload("HALLO".encode()) \
-    .make()
-
-print(segment.hex())
