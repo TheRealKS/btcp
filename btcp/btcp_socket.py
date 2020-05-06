@@ -49,7 +49,17 @@ class BTCPSocket:
         for i in range(self._rwindow):
             if(len(self.sbuffer) > 0):
                 self._lossy_layer.send_segment(self.sbuffer[i])
-    
+
+    def process_message(self, segment):
+        if SegmentType.ACK in segment.flags:
+            # Acknowledgment
+            self.recvAck(segment)
+        elif len(segment.flags) == 0:
+            # Just a message
+            self.recv(segment)
+        else:
+            raise ValueError("Invalid flag setting in message")
+
     # Send any incoming data to the application layer
     def recv(self, segment):
         if (self.cksumOK(segment) and segment.seqnumber() - self._acknum == 1 and self.window > 0):
