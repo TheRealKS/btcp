@@ -13,7 +13,7 @@ def main():
 
     # Create a bTCP server socket
     s = BTCPServerSocket(args.window, args.timeout)
-    # TODO Write your file transfer server code here using your BTCPServerSocket's accept, and recv methods.
+    print("Server started!")
     dataList = []
     
     while(s.isActive()):

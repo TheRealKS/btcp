@@ -1,7 +1,6 @@
 #!/usr/local/bin/python3
 
 import argparse
-import time
 from btcp.client_socket import BTCPClientSocket
 
 
@@ -15,6 +14,7 @@ def main():
     # Create a bTCP client socket with the given window size and timeout value
     s = BTCPClientSocket(args.window, args.timeout)
     s.connect()
+    print("Connected!")
 
     try:
         f = open(args.input)
