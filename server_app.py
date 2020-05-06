@@ -22,9 +22,9 @@ def main():
     # Clean up any state
     s.close()
 
-    f = open(args[2],"w")
+    f = open(args.output, "w")
     for data in dataList:
-        f.write(data.decode())
+        f.write(data)
     f.close()
 
 main()

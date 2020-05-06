@@ -22,11 +22,9 @@ def main():
         sendFile(lines, s, 0)
     except IOError:
         print("File does not exist!")
-
-
-    # Clean up any state
-    s.disconnect()
-    f.close()
+    finally:
+        s.disconnect()
+        f.close()
 
 def sendFile(filedata, socket, sent):
     try:

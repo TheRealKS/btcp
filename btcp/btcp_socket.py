@@ -58,6 +58,7 @@ class BTCPSocket:
             else:
                 break
 
+        return
         #start timeout timer
         self.loop.call_later(self._timeout, self.sendAll)
         if not self.loop_started:

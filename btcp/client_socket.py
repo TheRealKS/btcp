@@ -50,6 +50,7 @@ class BTCPClientSocket(BTCPSocket):
         self._lossy_layer.send_segment(s)
         self.status = 1
 
+        return
         self.loop.call_later(self._timeout, self.timeout, self.connect)
         if first:
             self.connloop.run_forever()
