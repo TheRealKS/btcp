@@ -64,7 +64,6 @@ class BTCPServerSocket(BTCPSocket):
             .make()
         self._lossy_layer.send_segment(s)
         self._active = False
-        self.close()
 
     def isActive(self):
         return self.active
