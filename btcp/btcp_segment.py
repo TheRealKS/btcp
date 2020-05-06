@@ -30,6 +30,8 @@ class bTCPSegment:
         self.window = 0
         self.checksum = 0
         self.datalength = 0
+        self.setchecksum = False
+        self.checksumfunction = None
 
         self.factory = False
 
@@ -79,8 +81,8 @@ class bTCPSegment:
         if not self.factory:
             pass
 
-        self.checksum = checksum
-        self.header[CHECKSUM:CHECKSUM + CHECKSUM_SIZE] = int.to_bytes(checksum, CHECKSUM_SIZE, byteorder);
+        self.checksumfunction = checksum
+        self.setchecksum = True
         return self
 
     def setPayload(self, payload):
@@ -90,16 +92,21 @@ class bTCPSegment:
         self.data = bytearray(payload)
         datlen = len(self.data)
         if datlen > PAYLOAD_SIZE:
-            raise AttributeError("Payload too large. Length was " + str(datlen) + ", but max length is " + PAYLOAD_SIZE)
+            raise AttributeError("Payload too large. Length was " + str(datlen) + ", but max length is " + str(PAYLOAD_SIZE))
 
         self.datalength = datlen
-        self.header[DATA_LENGTH] = datlen
+        self.header[DATA_LENGTH:DATA_LENGTH + DATA_LENGTH_SIZE] = int.to_bytes(datlen, DATA_LENGTH_SIZE, byteorder)
 
         return self
 
     def make(self):
         if not self.factory:
             pass
+
+        segment = self.header + self.data
+        if self.setchecksum:
+            self.checksum = self.checksumfunction(segment)
+            self.header[CHECKSUM:CHECKSUM + CHECKSUM_SIZE] = int.to_bytes(self.checksum, CHECKSUM_SIZE, byteorder);
 
         segment = self.header + self.data
 
