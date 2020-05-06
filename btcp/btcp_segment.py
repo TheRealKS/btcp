@@ -106,7 +106,7 @@ class bTCPSegment:
         segment = self.header + self.data
         if self.setchecksum:
             self.checksum = self.checksumfunction(segment)
-            self.header[CHECKSUM:CHECKSUM + CHECKSUM_SIZE] = int.to_bytes(self.checksum, CHECKSUM_SIZE, byteorder);
+            self.header[CHECKSUM:CHECKSUM + CHECKSUM_SIZE] = int.to_bytes(self.checksum, CHECKSUM_SIZE, byteorder)
 
         segment = self.header + self.data
 
