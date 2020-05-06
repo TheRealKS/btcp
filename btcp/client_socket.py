@@ -4,6 +4,7 @@ from btcp.constants import *
 from btcp.btcp_segment import *
 from os import urandom
 from sys import byteorder
+import asyncio
 
 # bTCP client socket
 # A client application makes use of the services provided by bTCP by calling connect, send, disconnect, and close
@@ -11,6 +12,8 @@ class BTCPClientSocket(BTCPSocket):
     def __init__(self, window, timeout):
         super().__init__(window, timeout)
         self._lossy_layer = LossyLayer(self, CLIENT_IP, CLIENT_PORT, SERVER_IP, SERVER_PORT)
+        self.loop = asyncio.get_event_loop()
+        self.tries = 1
 
     # Called by the lossy layer from another thread whenever a segment arrives. 
     def lossy_layer_input(self, segment):
@@ -21,6 +24,7 @@ class BTCPClientSocket(BTCPSocket):
             # Step 2 of handshake
             self.finish_connect(s)
             self._rwindow = s.window
+            self.loop.stop()
             return
 
         if SegmentType.ACK in segment.flags & SegmentType.FIN in segment.flags:
@@ -46,7 +50,7 @@ class BTCPClientSocket(BTCPSocket):
         self._lossy_layer.send_segment(s)
         self.status = 1
 
-        self.loop.call_later(1, self.checkTimeout)
+        self.loop.call_later(self._timeout, self.checkTimeout)
         if first:
             self.loop.run_forever()
 
