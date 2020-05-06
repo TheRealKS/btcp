@@ -1,4 +1,6 @@
 from btcp.btcp_segment import *
+from btcp.lossy_layer import LossyLayer
+from btcp.constants import *
 
 RECEIVE_BUFFER_SIZE = 100
 
@@ -12,6 +14,7 @@ class BTCPSocket:
         self._timeout = timeout
         self.rbuffer = []
         self.status = 0 #0=nothing, 1 = client SYN sent, 2 = Server responded, 3 = Fully connected
+        self._lossy_layer = None
 
     def create_data_segments(self, data):
 
@@ -26,15 +29,16 @@ class BTCPSocket:
     
     # Send any incoming data to the application layer
     def recv(self, segment):
-        if (in_cksum(segment) and segment.seqnumber() - self._acknum == 1 and self.window > 0):
+        if (self.in_cksum(segment)==segment.checksum and segment.seqnumber() - self._acknum == 1 and self.window > 0):
             self.rbuffer.append(segment.data)
             self._acknum += 1
             self._window -= 1
-            newsegment = bTCPSegment().Factory()
-            newsegment.setFlag(SegmentType.ACK)
-            newsegment.setSequenceNumber(self._seqnum)
-            newsegment.setAcknowledgementNumber(self._acknum)
-            newsegment.setWindow(self._window)
+            acksegment = bTCPSegment().Factory()
+            acksegment.setFlag(SegmentType.ACK)
+            acksegment.setSequenceNumber(self._seqnum)
+            acksegment.setAcknowledgementNumber(self._acknum)
+            acksegment.setWindow(self._window)
+            self._lossy_layer.send_segment(acksegment)
    
     def read(self):
         return self.rbuffer.pop(0)
