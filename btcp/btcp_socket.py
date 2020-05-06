@@ -131,8 +131,8 @@ class BTCPSocket:
 
         # turn into unsigned char and then add it to the sum
         sum = 0
-        for i in range(int(len(data) / 2)):
-            sum += int.from_bytes(data[i*2:(i*2 + 2)], byteorder)
+        for i in range(int(len(data) / 2), 2):
+            sum += int.from_bytes(data[i:(i + 2)], byteorder)
 
         # handle carries
         while (sum > (216) - 1):
