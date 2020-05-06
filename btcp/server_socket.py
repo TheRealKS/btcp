@@ -25,7 +25,7 @@ class BTCPServerSocket(BTCPSocket):
         else:
             if SegmentType.FIN in segment.flags:
                 # Disconnected
-                disconnect()
+                self.disconnect()
             else:
                 self.process_message(segment)
 
