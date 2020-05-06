@@ -54,7 +54,7 @@ class BTCPClientSocket(BTCPSocket):
         if first:
             self.loop.run_forever()
 
-    def checkTimeout(self, callback):
+    def timeout(self, callback):
         if self.status == 1:
             if self.tries < MAX_TRIES:
                 self.tries += 1
