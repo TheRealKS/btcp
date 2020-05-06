@@ -28,7 +28,7 @@ class BTCPClientSocket(BTCPSocket):
             pass
         elif SegmentType.ACK in s.flags:
             # Acknowledgment
-            pass
+            self.recvAck(segment)
         elif len(s.flags) == 0:
             # Just a message
             self.recv(segment)

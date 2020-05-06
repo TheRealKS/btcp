@@ -21,14 +21,17 @@ class BTCPSocket:
 
     # Send data originating from the application in a reliable way to the server
     def send(self, data):
-        segments = self.create_data_segments(data)
+        self.sbuffer.extend(self.create_data_segments(data))
+        sendAll()
 
-        if self._window > 0:
-            pass
+    def sendAll(self):
+        for i in range(self._rwindow):
+            if(len(self.sbuffer) > 0):
+                self._lossy_layer.send_segment(self.sbuffer[i])
     
     # Send any incoming data to the application layer
     def recv(self, segment):
-        if (self.in_cksum(segment)==segment.checksum and segment.seqnumber() - self._acknum == 1 and self.window > 0):
+        if (self.cksumOK(segment) and segment.seqnumber() - self._acknum == 1 and self.window > 0):
             self.rbuffer.append(segment.data)
             self._acknum += 1
             self._window -= 1
@@ -39,6 +42,11 @@ class BTCPSocket:
             acksegment.setWindow(self._window)
             self._lossy_layer.send_segment(acksegment)
    
+    def recvAck(self, segment):
+        self._rwindow = segment.window
+        if (self.cksumOK(segment) and segment.acknumber == self.sbuffer[0].acknumber):
+            self.sbuffer.pop(0)
+
     def read(self):
         return self.rbuffer.pop(0)
 
@@ -46,6 +54,9 @@ class BTCPSocket:
         buf = self.rbuffer
         self.rbuffer = []
         return buf
+
+    def cksumOK(self, segment):
+        self.in_cksum(segment) == 0xffff
 
     # Return the Internet checksum of data
     @staticmethod
