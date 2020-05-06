@@ -23,9 +23,9 @@ class BTCPServerSocket(BTCPSocket):
         if self.status < 3:
             self.accept(s)
         else:
-            if SegmentType.ACK in segment.flags & SegmentType.FIN in segment.flags:
+            if SegmentType.FIN in segment.flags:
                 # Disconnected
-                pass
+                disconnect()
             else:
                 self.process_message(segment)
 
@@ -53,6 +53,14 @@ class BTCPServerSocket(BTCPSocket):
 
         self._rwindow = client_segment.window
 
-    # Clean up any state
+    # Reply with FINACK and close connection
+    def disconnect(self):
+        s = s.Factory() \
+            .setFlag(SegmentType.ACK) \
+            .setFlag(SegmentType.FIN)
+        self.lossy_layer.send_segment(s.make())
+        close()
+
+    # Clean up any state and send an ACKFIN
     def close(self):
         self._lossy_layer.destroy()
