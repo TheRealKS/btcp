@@ -1,5 +1,6 @@
 from btcp.btcp_socket import BTCPSocket
 from btcp.lossy_layer import LossyLayer
+from btcp.constants import *
 from btcp.btcp_segment import *
 from os import urandom
 from sys import byteorder
@@ -9,6 +10,7 @@ from sys import byteorder
 class BTCPClientSocket(BTCPSocket):
     def __init__(self, window, timeout):
         super().__init__(window, timeout)
+        self._lossy_layer = LossyLayer(self, CLIENT_IP, CLIENT_PORT, SERVER_IP, SERVER_PORT)
 
     # Called by the lossy layer from another thread whenever a segment arrives. 
     def lossy_layer_input(self, segment):

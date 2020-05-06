@@ -1,6 +1,5 @@
 from btcp.btcp_segment import *
 from btcp.lossy_layer import LossyLayer
-from btcp.constants import *
 
 RECEIVE_BUFFER_SIZE = 100
 
