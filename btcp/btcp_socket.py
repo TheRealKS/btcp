@@ -2,8 +2,11 @@ from btcp.btcp_segment import *
 from btcp.lossy_layer import LossyLayer
 
 RECEIVE_BUFFER_SIZE = 100
+MAX_SBUFFER_SIZE = 100  # Max size of data coming from application layer
+
 
 class BTCPSocket:
+    _lossy_layer: LossyLayer
 
     def __init__(self, window, timeout):
         self._window = window
@@ -12,12 +15,30 @@ class BTCPSocket:
         self._seqnum = 0
         self._timeout = timeout
         self.rbuffer = []
-        self.status = 0 #0=nothing, 1 = client SYN sent, 2 = Server responded, 3 = Fully connected
+        self.sbuffer = []
+        self.status = 0  # 0=nothing, 1 = client SYN sent, 2 = Server responded, 3 = Fully connected
         self._lossy_layer = None
 
-    def create_data_segments(self, data):
+    def create_data_segments(self, data: bytearray):
+        # The size of the data is too large
+        if len(data) > (MAX_SBUFFER_SIZE - len(self.sbuffer)) * PAYLOAD_SIZE:
+            raise ValueError("Size of data too large")
 
-        pass
+        # While we can make segments the size of the max payload, do so
+        segments = []
+        while len(data) >= PAYLOAD_SIZE:
+            segmentpayload = data[0:PAYLOAD_SIZE]
+            del data[0:PAYLOAD_SIZE]
+
+            self._seqnum += 1
+            segments.append(self.create_data_segment(segmentpayload))
+
+        # If there's still some data left, put it in a segment
+        if len(data) > 0:
+            self._seqnum += 1
+            segments.append(self.create_data_segment(data))
+
+        return segments
 
     # Send data originating from the application in a reliable way to the server
     def send(self, data):
@@ -25,10 +46,10 @@ class BTCPSocket:
 
         if self._window > 0:
             pass
-    
+
     # Send any incoming data to the application layer
     def recv(self, segment):
-        if (self.in_cksum(segment)==segment.checksum and segment.seqnumber() - self._acknum == 1 and self.window > 0):
+        if (self.in_cksum(segment) == segment.checksum and segment.seqnumber() - self._acknum == 1 and self.window > 0):
             self.rbuffer.append(segment.data)
             self._acknum += 1
             self._window -= 1
@@ -38,7 +59,7 @@ class BTCPSocket:
             acksegment.setAcknowledgementNumber(self._acknum)
             acksegment.setWindow(self._window)
             self._lossy_layer.send_segment(acksegment)
-   
+
     def read(self):
         return self.rbuffer.pop(0)
 
@@ -46,6 +67,18 @@ class BTCPSocket:
         buf = self.rbuffer
         self.rbuffer = []
         return buf
+
+    # Create a data packet
+    def create_data_segment(self, data: bytearray):
+        segment = bTCPSegment()
+        segment = segment.Factory() \
+            .setSequenceNumber(self._seqnum) \
+            .setWindow(self._window) \
+            .setChecksum(self.in_cksum) \
+            .setPayload(data) \
+            .make()
+
+        return segment
 
     # Return the Internet checksum of data
     @staticmethod

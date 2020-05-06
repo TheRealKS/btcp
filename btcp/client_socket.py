@@ -49,7 +49,7 @@ class BTCPClientSocket(BTCPSocket):
             .setSequenceNumber(self._seqnum)
         s = s.make()
 
-        self._lossy_layer.send_segment(s)
+        super()._lossy_layer.send_segment(s)
         self.status += 1
 
     def finish_connect(self, server_segment):
