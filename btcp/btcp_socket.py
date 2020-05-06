@@ -63,7 +63,6 @@ class BTCPSocket:
                 break
     
     # If the message is OK, put it in the receiving buffer, increase _acknum and reply with an ACK
-
     def process_message(self, segment):
         if SegmentType.ACK in segment.flags:
             # Acknowledgment
@@ -74,8 +73,7 @@ class BTCPSocket:
         else:
             raise ValueError("Invalid flag setting in message")
 
-    # Send any incoming data to the application layer
-    def recv(self, segment):
+    def recv_message(self, segment):
         if (self.cksumOK(segment) and segment.seqnumber() - self._acknum == 1 and self.window > 0):
             self.rbuffer.append(segment.data)
             self._acknum += 1
@@ -88,15 +86,13 @@ class BTCPSocket:
             self._lossy_layer.send_segment(acksegment)
    
     # 
-    def recvAck(self, segment):
+    def recv_ACK(self, segment):
         self._rwindow = segment.window
         if (self.cksumOK(segment) and segment.acknumber == self.sbuffer[0].acknumber):
             self.sbuffer.pop(0)
 
-    def read(self):
-        return self.rbuffer.pop(0)
-
-    def read_all(self):
+    # Send any incoming data to the application layer
+    def recv(self):
         buf = self.rbuffer
         self.rbuffer = []
         return buf
