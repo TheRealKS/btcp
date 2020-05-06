@@ -25,5 +25,6 @@ def main():
     f = open(args[2],"w")
     for data in dataList:
         f.write(data)
+    f.close()
 
 main()
