@@ -63,6 +63,18 @@ class BTCPSocket:
                 break
     
     # If the message is OK, put it in the receiving buffer, increase _acknum and reply with an ACK
+
+    def process_message(self, segment):
+        if SegmentType.ACK in segment.flags:
+            # Acknowledgment
+            self.recvAck(segment)
+        elif len(segment.flags) == 0:
+            # Just a message
+            self.recv(segment)
+        else:
+            raise ValueError("Invalid flag setting in message")
+
+    # Send any incoming data to the application layer
     def recv(self, segment):
         if (self.cksumOK(segment) and segment.seqnumber() - self._acknum == 1 and self.window > 0):
             self.rbuffer.append(segment.data)
