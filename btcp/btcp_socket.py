@@ -104,7 +104,7 @@ class BTCPSocket:
 
     # Checks if the checksum is as it should be
     def cksumOK(self, segment):
-        return self.in_cksum(segment) == 0xffff
+        self.in_cksum(segment) == 0xffff
     
     # Create a data packet
     def create_data_segment(self, data: bytearray):
