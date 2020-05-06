@@ -5,7 +5,7 @@ import time
 server = BTCPServerSocket(10, 10)
 print("Server started!")
 
-socket = BTCPClientSocket(1, 10)
+socket = BTCPClientSocket(10, 10)
 socket.connect()
 
 time.sleep(2)

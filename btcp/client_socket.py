@@ -85,7 +85,16 @@ class BTCPClientSocket(BTCPSocket):
 
     # Perform a handshake to terminate a connection
     def disconnect(self):
-        pass
+        sendFin()
+        s.status = 4
+
+    # Sends a FIN package
+    def sendFin(self):
+        s = s.Factory() \
+            .setFlag(SegmentType.FIN)
+        s = s.make()
+
+        self._lossy_layer.send_segment(s)
 
     # Clean up any state
     def close(self):
