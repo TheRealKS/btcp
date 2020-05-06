@@ -18,7 +18,7 @@ class BTCPServerSocket(BTCPSocket):
 
     # Called by the lossy layer from another thread whenever a segment arrives
     def lossy_layer_input(self, segment):
-        rsegment = segment
+        rsegment = segment[0]
         s = bTCPSegment()
         s.decode(segment[0])
 

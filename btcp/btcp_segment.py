@@ -155,7 +155,7 @@ class bTCPSegment:
         if number & 2 != 0:
             flags.append(SegmentType.ACK)
 
-        if number & 4 != 0:
+        if number & 8 != 0:
             flags.append(SegmentType.SYN)
 
         if number & 5 != 0:

@@ -12,12 +12,12 @@ class BTCPClientSocket(BTCPSocket):
     def __init__(self, window, timeout):
         super().__init__(window, timeout)
         self._lossy_layer = LossyLayer(self, CLIENT_IP, CLIENT_PORT, SERVER_IP, SERVER_PORT)
-        self.loop = asyncio.get_event_loop()
+        self.connloop = asyncio.get_event_loop()
         self.tries = 1
 
     # Called by the lossy layer from another thread whenever a segment arrives. 
     def lossy_layer_input(self, segment):
-        rsegment = segment
+        rsegment = segment[0]
         s = bTCPSegment()
         s.decode(segment[0])
 
@@ -28,7 +28,7 @@ class BTCPClientSocket(BTCPSocket):
             self.loop.stop()
             return
 
-        if SegmentType.ACK in s.flags & SegmentType.FIN in s.flags:
+        if SegmentType.ACK in s.flags and SegmentType.FIN in s.flags:
             self.close()
         else:
             self.process_message(s, rsegment)
@@ -52,7 +52,7 @@ class BTCPClientSocket(BTCPSocket):
 
         self.loop.call_later(self._timeout, self.timeout, self.connect)
         if first:
-            self.loop.run_forever()
+            self.connloop.run_forever()
 
     def timeout(self, callback):
         if self.status == 1 or self.status == 4:
@@ -92,7 +92,7 @@ class BTCPClientSocket(BTCPSocket):
 
         self.loop.call_later(self._timeout, self.timeout, self.disconnect)
         if first:
-            self.loop.run_forever()
+            self.connloop.run_forever()
 
 
     # Sends a FIN package
