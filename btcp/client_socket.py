@@ -25,7 +25,7 @@ class BTCPClientSocket(BTCPSocket):
 
         if SegmentType.ACK in segment.flags & SegmentType.FIN in segment.flags:
             # Disconnected
-            pass
+            self.close()
         else:
             self.process_message(segment)
 
@@ -43,7 +43,7 @@ class BTCPClientSocket(BTCPSocket):
             .setSequenceNumber(self._seqnum)
         s = s.make()
 
-        super()._lossy_layer.send_segment(s)
+        self._lossy_layer.send_segment(s)
         self.status += 1
 
     def finish_connect(self, server_segment):
@@ -65,7 +65,15 @@ class BTCPClientSocket(BTCPSocket):
 
     # Perform a handshake to terminate a connection
     def disconnect(self):
-        pass
+        sendFin()
+        s.status = 4
+
+    def sendFin(self):
+        s = s.Factory() \
+            .setFlag(SegmentType.FIN)
+        s = s.make()
+
+        self._lossy_layer.send_segment(s)
 
     # Clean up any state
     def close(self):
