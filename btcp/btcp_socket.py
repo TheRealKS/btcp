@@ -1,5 +1,6 @@
 from btcp.btcp_segment import *
 from btcp.lossy_layer import LossyLayer
+import asyncio
 
 RECEIVE_BUFFER_SIZE = 100
 MAX_SBUFFER_SIZE = 100  # Max size of data coming from application layer
@@ -18,6 +19,7 @@ class BTCPSocket:
         self.sbuffer = []
         self.status = 0  # 0=nothing, 1 = client SYN sent, 2 = Server responded, 3 = Fully connected
         self._lossy_layer = None
+        self.loop = asyncio.get_event_loop()
 
     def create_data_segments(self, data: bytearray):
         # The size of the data is too large
@@ -46,6 +48,9 @@ class BTCPSocket:
         
         #put all packets in the sending buffer
         self.sbuffer.extend(segments)
+
+        #start timeout timer
+        self.loop.call_later(self._timeout, self.sendAll())
 
         #send up to _rwindow of the new packets
         for i in range(self._rwindow):
@@ -117,24 +122,22 @@ class BTCPSocket:
 
     # Return the Internet checksum of data
     @staticmethod
+    # computes the Internet checksum
     def in_cksum(data):
-        str_ = bytearray(data)
-        csum = 0
-        countTo = (len(str_) // 2) * 2
+        #add padding if data is odd
+        if(len(data)%2 != 0):
+            data = data + b'\0'
 
-        for count in range(0, countTo, 2):
-            thisVal = str_[count + 1] * 256 + str_[count]
-            csum = csum + thisVal
-            csum = csum & 0xffffffff
+        #turn into unsigned char and then add it to the sum
+        sum = int(0)    
+        for i in range(int(len(data)/2)):
+            sum += struct.unpack('!H', data[i*2:(i*2)+2])[0]
 
-        if countTo < len(str_):
-            csum = csum + str_[-1]
-            csum = csum & 0xffffffff
+        #handle carries
+        while(sum > (2**16) - 1):
+            sum = int(sum % (2**16)) + int(sum / (2**16))
 
-        csum = (csum >> 16) + (csum & 0xffff)
-        csum = csum + (csum >> 16)
-        answer = ~csum
-        answer = answer & 0xffff
-        answer = answer >> 8 | (answer << 8 & 0xff00)
+        #invert
+        sum = 0xffff ^ sum
 
-        return answer
+        return sum
