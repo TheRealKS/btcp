@@ -1,5 +1,5 @@
-from client_socket import BTCPClientSocket
-from server_socket import BTCPServerSocket
+from btcp.client_socket import BTCPClientSocket
+from btcp.server_socket import BTCPServerSocket
 import time
 
 server = BTCPServerSocket(10, 10)
@@ -16,5 +16,4 @@ print("SeqnumS: " + str(server._seqnum))
 print("SeqnumC: " + str(socket._seqnum))
 print("WindowS: " + str(server._rwindow))
 print("WindowC: " + str(socket._rwindow))
-
 
