@@ -126,27 +126,30 @@ class BTCPSocket:
 
     # Return the Internet checksum of data
     @staticmethod
-    # computes the Internet checksum
-    def in_cksum(self, data):
-        #add padding if data is odd
-        if(len(data)%2 != 0):
-            data = data + b'\0'
+    def in_cksum(data):
+        data = bytes(data)
 
-        #turn into unsigned char and then add it to the sum
-        sum = int(0)
-        for i in range(int(len(data)/2)):
-            sum += struct.unpack('!H', data[i*2:(i*2)+2])[0]
+        # turn into unsigned char and then add it to the sum
+        sum = 0
+        for i in range(int(len(data) / 2)):
+            sum += int.from_bytes(data[i*2:(i*2 + 2)], byteorder)
 
-        #handle carries
-        while(sum > (2**16) - 1):
-            sum = int(sum % (2**16)) + int(sum / (2**16))
+        # handle carries
+        while (sum > (216) - 1):
+            sum = int(sum % (216)) + int(sum / (2 ** 16))
 
-        #invert
+        # invert
         sum = 0xffff ^ sum
 
-        return sum 
-    
-    # Clean up any state
-    def close(self):
-        self.loop.close()
-        self._lossy_layer.destroy()
+        return sum
+
+segment = bTCPSegment()
+segment = segment.Factory() \
+    .setPayload("HALLO".encode()) \
+    .setChecksum(BTCPSocket.in_cksum) \
+    .make()
+
+s = bTCPSegment()
+s.decode(segment)
+print(s.checksum)
+print(BTCPSocket.in_cksum(segment))
