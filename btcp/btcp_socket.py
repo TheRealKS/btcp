@@ -51,7 +51,7 @@ class BTCPSocket:
         self.sbuffer.extend(segments)
 
         #start timeout timer
-        self.loop.call_later(self._timeout, self.sendAll())
+        self.loop.call_later(self._timeout, self.sendAll)
         if not self.loop_started:
             self.loop.run_forever()
             self.loop_started = True

@@ -14,6 +14,7 @@ class BTCPServerSocket(BTCPSocket):
     def __init__(self, window, timeout):
         super().__init__(window, timeout)
         self._lossy_layer = LossyLayer(self, SERVER_IP, SERVER_PORT, CLIENT_IP, CLIENT_PORT)
+        self._active = True
 
     # Called by the lossy layer from another thread whenever a segment arrives
     def lossy_layer_input(self, segment):
@@ -62,4 +63,8 @@ class BTCPServerSocket(BTCPSocket):
             .setFlag(SegmentType.FIN) \
             .make()
         self._lossy_layer.send_segment(s)
+        self._active = False
         self.close()
+
+    def isActive(self):
+        return self.active
