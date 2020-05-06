@@ -42,15 +42,27 @@ class BTCPSocket:
 
     # Send data originating from the application in a reliable way to the server
     def send(self, data):
-        self.sbuffer.extend(self.create_data_segments(data))
-        sendAll()
+        segments = self.create_data_segments(data)
+        
+        #put all packets in the sending buffer
+        self.sbuffer.extend(segments)
 
+        #send up to _rwindow of the new packets
+        for i in range(self._rwindow):
+            if(len(segments) > 0):
+                self._lossy_layer.send_segment(segments[i])
+            else:
+                break
+
+    # Send up to _rwindow packets currently in the sending buffer
     def sendAll(self):
         for i in range(self._rwindow):
             if(len(self.sbuffer) > 0):
                 self._lossy_layer.send_segment(self.sbuffer[i])
+            else:
+                break
     
-    # Send any incoming data to the application layer
+    # If the message is OK, put it in the receiving buffer, increase _acknum and reply with an ACK
     def recv(self, segment):
         if (self.cksumOK(segment) and segment.seqnumber() - self._acknum == 1 and self.window > 0):
             self.rbuffer.append(segment.data)
@@ -63,6 +75,7 @@ class BTCPSocket:
             acksegment.setWindow(self._window)
             self._lossy_layer.send_segment(acksegment)
    
+    # 
     def recvAck(self, segment):
         self._rwindow = segment.window
         if (self.cksumOK(segment) and segment.acknumber == self.sbuffer[0].acknumber):
@@ -75,6 +88,9 @@ class BTCPSocket:
         buf = self.rbuffer
         self.rbuffer = []
         return buf
+
+    def timeout(self):
+        sendAll()
 
     def cksumOK(self, segment):
         self.in_cksum(segment) == 0xffff
