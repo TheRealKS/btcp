@@ -142,3 +142,8 @@ class BTCPSocket:
         sum = 0xffff ^ sum
 
         return sum
+
+    # Clean up any state
+    def close(self):
+        self.loop.close()
+        self._lossy_layer.destroy()
