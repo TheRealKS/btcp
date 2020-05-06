@@ -1,6 +1,6 @@
 from btcp.btcp_segment import *
 from btcp.lossy_layer import LossyLayer
-import asyncio
+from threading import Timer
 
 RECEIVE_BUFFER_SIZE = 100
 MAX_SBUFFER_SIZE = 100  # Max size of data coming from application layer
@@ -19,7 +19,6 @@ class BTCPSocket:
         self.sbuffer = []
         self.status = 0  # 0=nothing, 1 = client SYN sent, 2 = Server responded, 3 = Fully connected
         self._lossy_layer = None
-        self.loop = asyncio.get_event_loop()
         self.loop_started = False
 
     def create_data_segments(self, data: bytearray):
@@ -47,7 +46,7 @@ class BTCPSocket:
     # Send data originating from the application in a reliable way to the server
     def send(self, data):
         segments = self.create_data_segments(data)
-        
+
         #put all packets in the sending buffer
         self.sbuffer.extend(segments)
 
@@ -58,12 +57,9 @@ class BTCPSocket:
             else:
                 break
 
-        return
         #start timeout timer
-        self.loop.call_later(self._timeout, self.sendAll)
-        if not self.loop_started:
-            self.loop_started = True
-            self.loop.run_forever()
+        t = Timer(self._timeout, self.sendAll)
+        t.start()
 
     # Send up to _rwindow packets currently in the sending buffer
     def sendAll(self):
@@ -147,5 +143,4 @@ class BTCPSocket:
 
     # Clean up any state
     def close(self):
-        self.loop.close()
         self._lossy_layer.destroy()
