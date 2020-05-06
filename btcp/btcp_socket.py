@@ -63,19 +63,19 @@ class BTCPSocket:
                 break
     
     # general behaviour of both sockets for receiving non handshake type messages
-    def process_message(self, segment):
+    def process_message(self, segment, rawSegment):
         if SegmentType.ACK in segment.flags:
             # Acknowledgment
-            self.recvACK(segment)
+            self.recv_ACK(segment)
         elif len(segment.flags) == 0:
             # Just a message
-            self.recv(segment)
+            self.recv_message(segment, rawSegment)
         else:
             raise ValueError("Invalid flag setting in message")
 
     # If the message is OK, put it in the receiving buffer, increase _acknum and reply with an ACK
-    def recv_message(self, segment):
-        if (self.cksumOK(segment) and segment.seqnumber() - self._acknum == 1 and self.window > 0):
+    def recv_message(self, segment, rawSegment):
+        if (self.cksumOK(rawSegment) and segment.seqnumber() - self._acknum == 1 and self._window > 0):
             self.rbuffer.append(segment.data)
             self._acknum += 1
             self._window -= 1
@@ -101,7 +101,7 @@ class BTCPSocket:
 
     # Checks if the checksum is as it should be
     def cksumOK(self, segment):
-        self.in_cksum(segment) == 0xffff
+        return self.in_cksum(segment) == 0xffff
     
     # Create a data packet
     def create_data_segment(self, data: bytearray):

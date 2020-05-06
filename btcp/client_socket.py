@@ -17,6 +17,7 @@ class BTCPClientSocket(BTCPSocket):
 
     # Called by the lossy layer from another thread whenever a segment arrives. 
     def lossy_layer_input(self, segment):
+        rsegment = segment
         s = bTCPSegment()
         s.decode(segment[0])
 
@@ -30,7 +31,7 @@ class BTCPClientSocket(BTCPSocket):
         if SegmentType.ACK in segment.flags & SegmentType.FIN in segment.flags:
             self.close()
         else:
-            self.process_message(segment)
+            self.process_message(segment, rsegment)
 
     # Perform a three-way handshake to establish a connection
     def connect(self, first=True):
