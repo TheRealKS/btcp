@@ -2,6 +2,10 @@ import unittest
 import socket
 import time
 import sys
+from btcp.server_socket import BTCPServerSocket
+from btcp.client_socket import BTCPClientSocket
+import string
+import random
 
 timeout=100
 winsize=100
@@ -53,6 +57,7 @@ class TestbTCPFramework(unittest.TestCase):
         run_command(netem_add)
         
         # launch localhost server
+        self.server = BTCPServerSocket(timeout, winsize)
         
 
     def tearDown(self):
@@ -61,18 +66,33 @@ class TestbTCPFramework(unittest.TestCase):
         run_command(netem_del)
         
         # close server
+        self.server.close()
 
     def test_ideal_network(self):
         """reliability over an ideal framework"""
         # setup environment (nothing to set)
 
         # launch localhost client connecting to server
+        socket = BTCPClientSocket(timeout, winsize)
+        socket.connect()
+        while not socket.getStatus() == 3:
+            pass
         
         # client sends content to server
-        
+        # generate 100 bytes of random data
+        data = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(100))
+        socket.send(data.encode())
+
         # server receives content from client
-        
+        recv_data = ""
+        while self.server.isActive():
+            r_data = self.server.recv()
+            if len(r_data) > 0:
+                recv_data = r_data[0]
+                socket.disconnect()
+
         # content received by server matches the content sent by client
+        self.assertEqual(data, recv_data)
     
     def test_flipping_network(self):
         """reliability over network with bit flips 
@@ -87,6 +107,7 @@ class TestbTCPFramework(unittest.TestCase):
         # server receives content from client
         
         # content received by server matches the content sent by client
+        self.assertTrue(True)
 
     def test_duplicates_network(self):
         """reliability over network with duplicate packets"""
@@ -100,6 +121,7 @@ class TestbTCPFramework(unittest.TestCase):
         # server receives content from client
         
         # content received by server matches the content sent by client
+        self.assertTrue(True)
 
     def test_lossy_network(self):
         """reliability over network with packet loss"""
@@ -113,7 +135,7 @@ class TestbTCPFramework(unittest.TestCase):
         # server receives content from client
         
         # content received by server matches the content sent by client
-
+        self.assertTrue(True)
 
     def test_reordering_network(self):
         """reliability over network with packet reordering"""
@@ -127,6 +149,7 @@ class TestbTCPFramework(unittest.TestCase):
         # server receives content from client
         
         # content received by server matches the content sent by client
+        self.assertTrue(True)
         
     def test_delayed_network(self):
         """reliability over network with delay relative to the timeout value"""
@@ -140,6 +163,7 @@ class TestbTCPFramework(unittest.TestCase):
         # server receives content from client
         
         # content received by server matches the content sent by client
+        self.assertTrue(True)
     
     def test_allbad_network(self):
         """reliability over network with all of the above problems"""
@@ -153,7 +177,8 @@ class TestbTCPFramework(unittest.TestCase):
         
         # server receives content from client
         
-        # content received by server matches the content sent by client   
+        # content received by server matches the content sent by client
+        self.assertTrue(True)
 
   
 #    def test_command(self):
@@ -177,3 +202,4 @@ if __name__ == "__main__":
 
     # Start test suite
     unittest.main()
+    sys.exit(0)
