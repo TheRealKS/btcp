@@ -22,8 +22,9 @@ class BTCPSocket:
         self.loop_started = False
 
     def create_data_segments(self, data: bytearray):
+        data = bytearray(data)
         # The size of the data is too large
-        remaining = MAX_SBUFFER_SIZE - len(self.sbuffer) * PAYLOAD_SIZE
+        remaining = (MAX_SBUFFER_SIZE - len(self.sbuffer)) * PAYLOAD_SIZE
         if len(data) > remaining:
             raise ValueError(remaining)
 
@@ -121,6 +122,9 @@ class BTCPSocket:
             .make()
 
         return segment
+
+    def getStatus(self):
+        return self.status
 
     # Return the Internet checksum of data
     @staticmethod

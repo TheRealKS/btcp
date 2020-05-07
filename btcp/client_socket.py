@@ -30,7 +30,11 @@ class BTCPClientSocket(BTCPSocket):
             return
 
         if SegmentType.ACK in s.flags and SegmentType.FIN in s.flags:
-            self.close()
+            self.status = 0
+            try:
+                self._lossy_layer.destroy()
+            except RuntimeError:
+                pass
         else:
             self.process_message(s, rsegment)
 

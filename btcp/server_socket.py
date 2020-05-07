@@ -27,6 +27,7 @@ class BTCPServerSocket(BTCPSocket):
         else:
             if SegmentType.FIN in s.flags:
                 # Disconnected
+                self._active = False
                 self.disconnect()
             else:
                 self.process_message(s, rsegment)
@@ -63,7 +64,6 @@ class BTCPServerSocket(BTCPSocket):
             .setFlag(SegmentType.FIN) \
             .make()
         self._lossy_layer.send_segment(s)
-        self._active = False
 
     def isActive(self):
         return self._active

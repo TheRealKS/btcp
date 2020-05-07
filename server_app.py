@@ -19,14 +19,17 @@ def main():
     while(s.isActive()):
         dataList.extend(s.recv())
 
-    print("received: " + dataList[0])
-
+    print("Closing connection...")
     # Clean up any state
     s.close()
+
+    print("Connection closed... Writing to file...")
 
     f = open(args.output, "w")
     for data in dataList:
         f.write(data)
     f.close()
+
+    print("File written!")
 
 main()

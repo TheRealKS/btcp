@@ -1,19 +1,9 @@
-from btcp.client_socket import BTCPClientSocket
-from btcp.server_socket import BTCPServerSocket
-import time
+import string
+import random
+def id_generator(size=6, chars=string.ascii_uppercase + string.digits):
+   return ''.join(random.choice(chars) for _ in range(size))
 
-server = BTCPServerSocket(10, 10)
-print("Server started!")
-
-socket = BTCPClientSocket(10, 10)
-socket.connect()
-
-time.sleep(2)
-
-print("AcknumS: " + str(server._acknum))
-print("AcknumC: " + str(socket._acknum))
-print("SeqnumS: " + str(server._seqnum))
-print("SeqnumC: " + str(socket._seqnum))
-print("WindowS: " + str(server._rwindow))
-print("WindowC: " + str(socket._rwindow))
-
+f = open("input.file", "w")
+data = id_generator(5000)
+f.write(data)
+f.close()
