@@ -9,12 +9,13 @@ import random
 import math
 import asyncio
 
+password = ""
 timeout=1
 winsize=100
 intf="lo"
-netem_add="echo 210501ko | sudo -S tc qdisc add dev {} root netem".format(intf)
-netem_change="echo 210501ko | sudo -S tc qdisc change dev {} root netem {}".format(intf,"{}")
-netem_del="echo 210501ko | sudo -S tc qdisc del dev {} root netem".format(intf)
+netem_add="echo " + password + " | sudo -S tc qdisc add dev {} root netem".format(intf)
+netem_change="echo " + password + " | sudo -S tc qdisc change dev {} root netem {}".format(intf,"{}")
+netem_del="echo " + password + " | sudo -S tc qdisc del dev {} root netem".format(intf)
 
 """run command and retrieve output"""
 def run_command_with_output(command, input=None, cwd=None, shell=True):
@@ -322,6 +323,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="bTCP tests")
     parser.add_argument("-w", "--window", help="Define bTCP window size used", type=int, default=100)
     parser.add_argument("-t", "--timeout", help="Define the timeout value used (ms)", type=int, default=1)
+    parser.add_argument("-p", "--password", help="Give user password", type=string, default=password )
     args, extra = parser.parse_known_args()
     timeout = args.timeout
     winsize = args.window
