@@ -1,3 +1,6 @@
+# Koen Sauren | s1024202
+# Cas Haaijman | s4372662
+
 from btcp.btcp_segment import *
 from btcp.lossy_layer import LossyLayer
 import asyncio
@@ -73,7 +76,6 @@ class BTCPSocket:
         try:
             await asyncio.wait_for(event.wait(), float(self._timeout))
         except asyncio.TimeoutError:
-            print("Packets timed out " + str(seqnum))
             self.sendAll(seqnum)
 
 
@@ -83,15 +85,13 @@ class BTCPSocket:
             if len(self.sbuffer) > 0 and i < len(self.sbuffer):
                 s = self.sbuffer[i]
                 s[1].clear()
-                if s[0].seqnumber <= timedout:
-                    print("Resent packet " + str(s[0].seqnumber))
-                    self.sentpackets += 1
-                    self._lossy_layer.send_segment(s[0].make())
-                    loop = asyncio.get_event_loop()
-                    if loop.is_running():
-                        asyncio.ensure_future(asyncio.wait([self.awaitAckTimeout(s[1], s[0].seqnumber)]))
-                    else:
-                        loop.run_until_complete(asyncio.wait([self.awaitAckTimeout(s[1], s[0].seqnumber)]))
+                self.sentpackets += 1
+                self._lossy_layer.send_segment(s[0].make())
+                loop = asyncio.get_event_loop()
+                if loop.is_running():
+                    asyncio.ensure_future(asyncio.wait([self.awaitAckTimeout(s[1], s[0].seqnumber)]))
+                else:
+                    loop.run_until_complete(asyncio.wait([self.awaitAckTimeout(s[1], s[0].seqnumber)]))
             else:
                 break
 
@@ -109,7 +109,6 @@ class BTCPSocket:
     # If the message is OK, put it in the receiving buffer, increase _acknum and reply with an ACK
     def recv_message(self, segment, rawSegment):
         if self.cksumOK(rawSegment) and segment.seqnumber - 1 == self._acknum and self._window > 0:
-            print("Received packet " + str(segment.seqnumber))
             self.rbuffer.append([segment.data, segment.seqnumber])
             self._window -= 1
             self._acknum += 1
@@ -119,12 +118,6 @@ class BTCPSocket:
             acksegment.setWindow(self._window)
             acksegment.setChecksum(self.in_cksum)
             self._lossy_layer.send_segment(acksegment.make())
-        elif (segment.seqnumber - 1 != self._acknum):
-            print("Rejected packet " + str(segment.seqnumber) + " because acknum is " + str(self._acknum))
-        elif (self._window == 0):
-            print("Rejected packet "  + str(segment.seqnumber) + " because window too small")
-        else:
-            print("Rejected packet " + str(segment.seqnumber) + " because checksum mismatch")
 
     # The behaviour when receiving an ACK message: update the receiving window size and if the earliest 
     # unacknowledged message is the one acknowledged, remove it from the sending buffer
@@ -134,13 +127,10 @@ class BTCPSocket:
             for i in range(0, len(self.sbuffer)):
                 if i > len(self.sbuffer)-1:
                     break
-                t = self.sbuffer[i]
+                t = self.sbuffer[0]
                 if t[0].seqnumber <= segment.acknumber:
-                    print("Acknolwedged packet " + str(t[0].seqnumber))
-                    self.acked += 1
-                    print("Sent: " + str(self.sentpackets) + " Acked: " + str(self.acked))
                     t[1].set()
-                    del self.sbuffer[i]
+                    del self.sbuffer[0]
                 else:
                     break
                 if len(self.sbuffer) == 0:

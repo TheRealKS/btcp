@@ -1,3 +1,5 @@
+# Koen Sauren | s1024202
+# Cas Haaijman | s4372662
 #!/usr/local/bin/python3
 
 import argparse

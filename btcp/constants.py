@@ -1,3 +1,6 @@
+# Koen Sauren | s1024202
+# Cas Haaijman | s4372662
+
 CLIENT_IP = 'localhost'
 CLIENT_PORT = 20000
 SERVER_IP = 'localhost'

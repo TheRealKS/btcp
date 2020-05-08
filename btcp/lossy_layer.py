@@ -1,3 +1,6 @@
+# Koen Sauren | s1024202
+# Cas Haaijman | s4372662
+
 import socket
 import select
 import threading

@@ -1,3 +1,6 @@
+# Koen Sauren | s1024202
+# Cas Haaijman | s4372662
+
 from threading import Timer
 
 from btcp.btcp_socket import BTCPSocket
@@ -110,7 +113,6 @@ class BTCPClientSocket(BTCPSocket):
     async def a_disconnect(self):
         self.status = 4
         self.tries = 0
-        print("Sendbuffer has " + str(len(self.sbuffer)))
         if len(self.sbuffer) == 0:
             self.sendFin()
             self.tries += 1

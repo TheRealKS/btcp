@@ -1,3 +1,6 @@
+# Koen Sauren | s1024202
+# Cas Haaijman | s4372662
+
 import socket
 from btcp.lossy_layer import LossyLayer
 from btcp.btcp_socket import BTCPSocket

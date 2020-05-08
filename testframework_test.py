@@ -1,3 +1,6 @@
+# Koen Sauren | s1024202
+# Cas Haaijman | s4372662
+
 import unittest
 import socket
 import time
@@ -83,12 +86,11 @@ class TestbTCPFramework(unittest.TestCase):
         # setup environment (nothing to set)
 
         # launch localhost client connecting to server
-        socket = BTCPClientSocket(10, 10)
+        socket = BTCPClientSocket(winsize, timeout)
         socket.connect()
         print("Connected")
         
         # client sends content to server
-        # generate 100 bytes of random data
         socket.send(self.data.encode())
 
         # server receives content from client
@@ -114,7 +116,7 @@ class TestbTCPFramework(unittest.TestCase):
         """reliability over network with bit flips 
         (which sometimes results in lower layer packet loss)"""
         # setup environment
-        run_command(netem_change.format("corrupt 10%"))
+        run_command(netem_change.format("corrupt 1%"))
 
         # launch localhost client connecting to server
         socket = BTCPClientSocket(winsize, timeout)
@@ -122,7 +124,6 @@ class TestbTCPFramework(unittest.TestCase):
         print("Connected")
 
         # client sends content to server
-        # generate 100 bytes of random data
         socket.send(self.data.encode())
 
         # server receives content from client
@@ -154,7 +155,6 @@ class TestbTCPFramework(unittest.TestCase):
         print("Connected")
 
         # client sends content to server
-        # generate 100 bytes of random data
         socket.send(self.data.encode())
 
         # server receives content from client
@@ -186,7 +186,6 @@ class TestbTCPFramework(unittest.TestCase):
         print("Connected")
 
         # client sends content to server
-        # generate 100 bytes of random data
         socket.send(self.data.encode())
 
         # server receives content from client
@@ -218,7 +217,6 @@ class TestbTCPFramework(unittest.TestCase):
         print("Connected")
 
         # client sends content to server
-        # generate 100 bytes of random data
         socket.send(self.data.encode())
 
         # server receives content from client
@@ -250,7 +248,6 @@ class TestbTCPFramework(unittest.TestCase):
         print("Connected")
 
         # client sends content to server
-        # generate 100 bytes of random data
         socket.send(self.data.encode())
 
         # server receives content from client
@@ -283,7 +280,6 @@ class TestbTCPFramework(unittest.TestCase):
         print("Connected")
 
         # client sends content to server
-        # generate 100 bytes of random data
         socket.send(self.data.encode())
 
         # server receives content from client
@@ -323,10 +319,11 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="bTCP tests")
     parser.add_argument("-w", "--window", help="Define bTCP window size used", type=int, default=100)
     parser.add_argument("-t", "--timeout", help="Define the timeout value used (ms)", type=int, default=1)
-    parser.add_argument("-p", "--password", help="Give user password", type=string, default=password )
+    parser.add_argument("-p", "--password", help="Give user password", type=string, default=password)
     args, extra = parser.parse_known_args()
     timeout = args.timeout
     winsize = args.window
+    password = args.password
     
     # Pass the extra arguments to unittest
     sys.argv[1:] = extra
