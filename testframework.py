@@ -49,6 +49,28 @@ def run_command(command,cwd=None, shell=True):
 
         
 class TestbTCPFramework(unittest.TestCase):
+    """function for testing"""
+    def createClient(self):
+        # launch localhost client connecting to server
+        socket = BTCPClientSocket(timeout, winsize)
+        socket.connect()
+        while not socket.getStatus() == 3:
+            pass
+    
+    def sendMessage(self):
+        # client sends content to server
+        # generate 100 bytes of random data
+        data = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(100))
+        socket.send(data.encode())
+        return data
+    
+    def getMessage(self):
+        while self.server.isActive():
+            r_data = self.server.recv()
+            if len(r_data) > 0:
+                socket.disconnect()
+                return r_data[0]
+
     """Test cases for bTCP"""
     
     def setUp(self):
@@ -70,26 +92,17 @@ class TestbTCPFramework(unittest.TestCase):
 
     def test_ideal_network(self):
         """reliability over an ideal framework"""
-        # setup environment (nothing to set)
+        # setup environment
+        setUp()
 
         # launch localhost client connecting to server
-        socket = BTCPClientSocket(timeout, winsize)
-        socket.connect()
-        while not socket.getStatus() == 3:
-            pass
-        
+        createClient()
+
         # client sends content to server
-        # generate 100 bytes of random data
-        data = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(100))
-        socket.send(data.encode())
+        data = sendMessage()
 
         # server receives content from client
-        recv_data = ""
-        while self.server.isActive():
-            r_data = self.server.recv()
-            if len(r_data) > 0:
-                recv_data = r_data[0]
-                socket.disconnect()
+        recv_data = getMessage()
 
         # content received by server matches the content sent by client
         self.assertEqual(data, recv_data)
@@ -99,86 +112,110 @@ class TestbTCPFramework(unittest.TestCase):
         (which sometimes results in lower layer packet loss)"""
         # setup environment
         run_command(netem_change.format("corrupt 1%"))
-        
+        setUp()
+
         # launch localhost client connecting to server
-        
+        createClient()
+
         # client sends content to server
-        
+        data = sendMessage()
+
         # server receives content from client
-        
+        recv_data = getMessage()
+
         # content received by server matches the content sent by client
-        self.assertTrue(True)
+        self.assertEqual(data, recv_data)
 
     def test_duplicates_network(self):
         """reliability over network with duplicate packets"""
         # setup environment
         run_command(netem_change.format("duplicate 10%"))
-        
+        setUp()
+
         # launch localhost client connecting to server
-        
+        createClient()
+
         # client sends content to server
-        
+        data = sendMessage()
+
         # server receives content from client
-        
+        recv_data = getMessage()
+
         # content received by server matches the content sent by client
-        self.assertTrue(True)
+        self.assertEqual(data, recv_data)
 
     def test_lossy_network(self):
         """reliability over network with packet loss"""
         # setup environment
         run_command(netem_change.format("loss 10% 25%"))
-        
+        setUp()
+
         # launch localhost client connecting to server
-        
+        createClient()
+
         # client sends content to server
-        
+        data = sendMessage()
+
         # server receives content from client
-        
+        recv_data = getMessage()
+
         # content received by server matches the content sent by client
-        self.assertTrue(True)
+        self.assertEqual(data, recv_data)
 
     def test_reordering_network(self):
         """reliability over network with packet reordering"""
         # setup environment
         run_command(netem_change.format("delay 20ms reorder 25% 50%"))
-        
+        setUp()
+
         # launch localhost client connecting to server
-        
+        createClient()
+
         # client sends content to server
-        
+        data = sendMessage()
+
         # server receives content from client
-        
+        recv_data = getMessage()
+
         # content received by server matches the content sent by client
-        self.assertTrue(True)
+        self.assertEqual(data, recv_data)
         
     def test_delayed_network(self):
         """reliability over network with delay relative to the timeout value"""
         # setup environment
         run_command(netem_change.format("delay "+str(timeout)+"ms 20ms"))
-        
+        setUp()
+
         # launch localhost client connecting to server
-        
+        createClient()
+
         # client sends content to server
-        
+        data = sendMessage()
+
         # server receives content from client
-        
+        recv_data = getMessage()
+
         # content received by server matches the content sent by client
-        self.assertTrue(True)
+        self.assertEqual(data, recv_data)
     
     def test_allbad_network(self):
         """reliability over network with all of the above problems"""
 
         # setup environment
         run_command(netem_change.format("corrupt 1% duplicate 10% loss 10% 25% delay 20ms reorder 25% 50%"))
-        
+        setUp()
+
         # launch localhost client connecting to server
-        
+        createClient()
+
         # client sends content to server
-        
+        data = sendMessage()
+
         # server receives content from client
-        
+        recv_data = getMessage()
+
         # content received by server matches the content sent by client
-        self.assertTrue(True)
+        self.assertEqual(data, recv_data)
 
   
 #    def test_command(self):
